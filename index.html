@@ -20,12 +20,12 @@
         <!-- Navbar -->
         <header class="bg-[#111111] border-b border-neutral-800 sticky top-0 z-50">
             <div class="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
-                <h1 class="luxury-font text-lg md:text-xl tracking-[4px] md:tracking-[6px] text-white cursor-pointer" onclick="switchView('shop')">A E T H E L</h1>
+                <h1 class="luxury-font text-base md:text-xl tracking-[3px] md:tracking-[6px] text-white cursor-pointer" onclick="switchView('shop')">A E T H E L</h1>
                 
-                <!-- ADMIN BUTTON FIXED VISIBILITY -->
-                <div class="flex items-center space-x-2">
-                    <button onclick="switchView('admin')" class="flex items-center space-x-1 text-[11px] md:text-xs font-bold tracking-wider text-black bg-[#D4AF37] px-3 py-1.5 rounded hover:bg-[#c29d31] transition shadow-md">
-                        <span>👑 ADMIN PANEL</span>
+                <!-- BADA AUR CLEAR ADMIN PANEL BUTTON -->
+                <div class="flex items-center">
+                    <button onclick="switchView('admin')" class="bg-[#D4AF37] text-black text-xs font-extrabold px-4 py-2 rounded shadow-lg hover:bg-[#c29d31] transition flex items-center space-x-1">
+                      <span>👑 ADMIN PANEL</span>
                     </button>
                 </div>
             </div>
@@ -232,7 +232,7 @@
             const name = document.getElementById('prod-name').value;
             const price = document.getElementById('prod-price').value;
             const fileInput = document.getElementById('prod-file-input');
-            const file = fileInput.files[0];
+4            const file = fileInput.files[0];
             const btn = document.getElementById('submit-btn');
 
             if (!file) return;
