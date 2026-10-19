@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AETHEL Luxury Jewellery</title>
-    <!-- Google Fonts & Tailwind CSS for modern styling -->
+    <!-- Tailwind CSS & Google Fonts -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=Plus+Jakarta+Sans:wght@300;400;500&display=swap" rel="stylesheet">
     <!-- Supabase JS SDK -->
@@ -40,8 +40,8 @@
 
         <!-- MAIN SHOP VIEW -->
         <main id="shop-view" class="block">
-            <!-- Hero Banner -->
-            <div class="relative w-full h-[220px] bg-neutral-900 flex items-center justify-center text-center px-4" style="background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('https://picsum.photos/seed/bannerbg/1200/500') center/cover;">
+            <!-- Hero Banner (Dynamic from Admin) -->
+            <div id="hero-banner" class="relative w-full h-[250px] bg-neutral-900 flex items-center justify-center text-center px-4" style="background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('https://picsum.photos/seed/bannerbg/1200/500') center/cover;">
                 <div>
                     <h2 class="luxury-font text-2xl tracking-[3px] text-white font-light mb-4">THE ETERNAL LUMINA COLLECTION</h2>
                     <button class="border border-neutral-400 text-white text-[10px] tracking-[2px] px-6 py-2 hover:bg-white hover:text-black transition">DISCOVER NOW</button>
@@ -55,36 +55,54 @@
                 <div id="loading-spinner" class="text-center py-12 text-[#D4AF37]">Loading exclusive collection...</div>
                 
                 <!-- Products Grid -->
-                <div id="products-grid" class="grid grid-cols-2 md:grid-cols-4 gap-6">
-                    <!-- Dynamic Products will load here -->
-                </div>
+                <div id="products-grid" class="grid grid-cols-2 md:grid-cols-4 gap-6"></div>
             </div>
         </main>
 
-        <!-- ADMIN PANEL VIEW (Hidden by default) -->
-        <main id="admin-view" class="hidden max-w-md mx-auto px-4 py-16">
-            <div class="bg-[#1B1B1B] border border-neutral-800 p-6 rounded-lg shadow-xl">
-                <div class="flex justify-between items-center mb-6">
+        <!-- ADMIN PANEL VIEW -->
+        <main id="admin-view" class="hidden max-w-xl mx-auto px-4 py-12">
+            <div class="space-y-8">
+                <!-- Header Box -->
+                <div class="bg-[#1B1B1B] border border-neutral-800 p-6 rounded-lg shadow-xl flex justify-between items-center">
                     <h3 class="luxury-font text-lg text-white font-medium">👑 Jewellery Admin Panel</h3>
-                    <button onclick="switchView('shop')" class="text-neutral-400 hover:text-white text-sm">✕ Close</button>
+                    <button onclick="switchView('shop')" class="text-neutral-400 hover:text-white text-sm bg-neutral-800 px-3 py-1 rounded">✕ Back to Shop</button>
                 </div>
-                <form id="add-product-form" onsubmit="handle}// Add Product Logic" class="space-y-4">
-                    <div>
-                        <label class="block text-xs text-neutral-400 mb-1">Product Name</label>
-                        <input type="text" id="prod-name" required class="w-full bg-neutral-900 border border-neutral-700 rounded px-3 py-2 text-sm text-white focus:border-[#D4AF37] outline-none">
-                    </div>
-                    <div>
-                        <label class="block text-xs text-neutral-400 mb-1">Price (e.g. PKR 45,200)</label>
-                        <input type="text" id="prod-price" required class="w-full bg-neutral-900 border border-neutral-700 rounded px-3 py-2 text-sm text-white focus:border-[#D4AF37] outline-none">
-                    </div>
-                    <div>
-                        <label class="block text-xs text-neutral-400 mb-1">Image URL (Optional)</label>
-                        <input type="url" id="prod-image" placeholder="https://..." class="w-full bg-neutral-900 border border-neutral-700 rounded px-3 py-2 text-sm text-white focus:border-[#D4AF37] outline-none">
-                    </div>
-                    <button type="submit" id="submit-btn" class="w-full bg-[#D4AF37] text-black font-bold text-xs tracking-wider py-3 rounded hover:bg-[#c29d31] transition mt-2">
-                        ADD PRODUCT TO WEBSITE
-                    </button>
-                </form>
+
+                <!-- 1. Banner Update Section -->
+                <div class="bg-[#1B1B1B] border border-neutral-800 p-6 rounded-lg shadow-xl">
+                    <h4 class="text-sm font-semibold text-[#D4AF37] mb-4 tracking-wider">CHANGE WEBSITE BANNER IMAGE</h4>
+                    <form id="update-banner-form" onsubmit="updateBanner(event)" class="space-y-4">
+                        <div>
+                            <label class="block text-xs text-neutral-400 mb-1">New Banner Image URL</label>
+                            <input type="url" id="banner-image-input" placeholder="https://example.com/banner.jpg" required class="w-full bg-neutral-900 border border-neutral-700 rounded px-3 py-2 text-sm text-white focus:border-[#D4AF37] outline-none">
+                        </div>
+                        <button type="submit" id="banner-btn" class="w-full bg-neutral-800 text-white border border-neutral-600 font-bold text-xs tracking-wider py-2.5 rounded hover:bg-neutral-700 transition">
+                            UPDATE BANNER
+                        </button>
+                    </form>
+                </div>
+
+                <!-- 2. Add Product Section -->
+                <div class="bg-[#1B1B1B] border border-neutral-800 p-6 rounded-lg shadow-xl">
+                    <h4 class="text-sm font-semibold text-[#D4AF37] mb-4 tracking-wider">ADD NEW JEWELLERY PRODUCT</h4>
+                    <form id="add-product-form" onsubmit="addProduct(event)" class="space-y-4">
+                        <div>
+                            <label class="block text-xs text-neutral-400 mb-1">Product Name</label>
+                            <input type="text" id="prod-name" placeholder="e.g. Diamond Ring" required class="w-full bg-neutral-900 border border-neutral-700 rounded px-3 py-2 text-sm text-white focus:border-[#D4AF37] outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-xs text-neutral-400 mb-1">Price</label>
+                            <input type="text" id="prod-price" placeholder="e.g. PKR 45,200" required class="w-full bg-neutral-900 border border-neutral-700 rounded px-3 py-2 text-sm text-white focus:border-[#D4AF37] outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-xs text-neutral-400 mb-1">Product Image URL</label>
+                            <input type="url" id="prod-image" placeholder="https://..." required class="w-full bg-neutral-900 border border-neutral-700 rounded px-3 py-2 text-sm text-white focus:border-[#D4AF37] outline-none">
+                        </div>
+                        <button type="submit" id="submit-btn" class="w-full bg-[#D4AF37] text-black font-bold text-xs tracking-wider py-3 rounded hover:bg-[#c29d31] transition">
+                            ADD PRODUCT TO WEBSITE
+                        </button>
+                    </form>
+                </div>
             </div>
         </main>
     </div>
@@ -100,27 +118,66 @@
         <p>© 2026 AETHEL Luxury Jewellery. All Rights Reserved.</p>
     </footer>
 
-    <!-- Supabase Integration Script -->
+    <!-- Supabase Script -->
     <script>
-        // Supabase Credentials Provided by You
         const SUPABASE_URL = 'https://yfioaxyzbrynurynvpdi.supabase.co';
         const SUPABASE_ANON_KEY = 'sb_publishable_CgXlu8jziGVz_OcPT_SiHg_Bx2re8dp';
-        
         const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-        // Switch Views (Shop <-> Admin)
         function switchView(view) {
             if(view === 'shop') {
                 document.getElementById('shop-view').classList.remove('hidden');
                 document.getElementById('admin-view').classList.add('hidden');
-                fetchProducts();
+                loadWebsiteData();
             } else {
                 document.getElementById('shop-view').classList.add('hidden');
                 document.getElementById('admin-view').classList.remove('hidden');
             }
         }
 
-        // Fetch Products from Supabase
+        async function loadWebsiteData() {
+            await fetchBanner();
+            await fetchProducts();
+        }
+
+        // Fetch & Display Banner
+        async function fetchBanner() {
+            try {
+                let { data, error } = await _supabase.from('settings').select('*').eq('key', 'banner_url').single();
+                if (data && data.value) {
+                    const bannerDiv = document.getElementById('hero-banner');
+                    bannerDiv.style.background = `linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('${data.value}') center/cover`;
+                }
+            } catch (err) {
+                console.log('Using default banner');
+            }
+        }
+
+        // Update Banner in Supabase
+        async function updateBanner(e) {
+            e.preventDefault();
+            const newUrl = document.getElementById('banner-image-input').value;
+            const btn = document.getElementById('banner-btn');
+            btn.innerText = 'UPDATING...';
+
+            try {
+                // Upsert settings table
+                const { error } = await _supabase.from('settings').upsert([
+                    { key: 'banner_url', value: newUrl }
+                ], { onConflict: 'key' });
+
+                if (error) throw error;
+                alert('Banner updated successfully!');
+                document.getElementById('update-banner-form').reset();
+                switchView('shop');
+            } catch (err) {
+                alert('Error updating banner: ' + err.message);
+            } finally {
+                btn.innerText = 'UPDATE BANNER';
+            }
+        }
+
+        // Fetch Products
         async function fetchProducts() {
             const grid = document.getElementById('products-grid');
             const spinner = document.getElementById('loading-spinner');
@@ -129,7 +186,6 @@
 
             try {
                 let { data: products, error } = await _supabase.from('products').select('*').order('id', { ascending: false });
-                
                 spinner.style.display = 'none';
 
                 if (error) throw error;
@@ -163,8 +219,8 @@
             }
         }
 
-        // Add Product Form Handler
-        document.getElementById('add-product-form').addEventListener('submit', async function(e) {
+        // Add Product
+        async function addProduct(e) {
             e.preventDefault();
             const name = document.getElementById('prod-name').value;
             const price = document.getElementById('prod-price').value;
@@ -176,7 +232,7 @@
 
             try {
                 const { error } = await _supabase.from('products').insert([
-                    { name: name, price: price, image: image ? image : null }
+                    { name: name, price: price, image: image }
                 ]);
 
                 if (error) throw error;
@@ -190,17 +246,15 @@
                 btn.disabled = false;
                 btn.innerText = 'ADD PRODUCT TO WEBSITE';
             }
-        });
+        }
 
-        // WhatsApp Direct Order Function
         function orderWhatsApp(name, price) {
             const phone = '923001234567'; // Apna WhatsApp number yahan dalein
             const msg = `Assalam-o-Alaikum, Main yeh jewellery order karna chahta hoon:\n\n*Product:* ${name}\n*Price:* ${price}\n\nKindly details share karein.`;
             window.open(`https://wa.me/${phone}?text=${encodeURIComponent(msg)}`, '_blank');
         }
 
-        // Load products on page load
-        window.onload = fetchProducts;
+        window.onload = loadWebsiteData;
     </script>
 </body>
 </html>
