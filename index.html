@@ -22,8 +22,9 @@
             <div class="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
                 <h1 class="luxury-font text-xl tracking-[6px] text-white cursor-pointer" onclick="switchView('shop')">A E T H E L</h1>
                 <div class="flex items-center space-x-4">
-                    <button onclick="switchView('admin')" class="flex items-center space-x-1 text-xs tracking-wider text-[#D4AF37] border border-[#D4AF37]/40 px-3 py-1.5 rounded hover:bg-[#D4AF37]/10 transition">
-                        <span>ADMIN PANEL</span>
+                    <!-- CLEAR ADMIN BUTTON -->
+                    <button onclick="switchView('admin')" class="flex items-center space-x-1 text-xs tracking-wider text-[#D4AF37] border border-[#D4AF37]/60 bg-[#1B1B1B] px-4 py-2 rounded-md hover:bg-[#D4AF37]/20 transition shadow-lg">
+                        <span>👑 ADMIN PANEL</span>
                     </button>
                 </div>
             </div>
@@ -41,7 +42,7 @@
         <!-- MAIN SHOP VIEW -->
         <main id="shop-view" class="block">
             <!-- Hero Banner -->
-            <div id="hero-banner" class="relative w-full h-[250px] bg-neutral-900 flex items-center justify-center text-center px-4" style="background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('https://picsum.photos/seed/bannerbg/1200/500') center/cover;">
+            <div id="hero-banner" class="relative w-full h-[280px] bg-neutral-900 flex items-center justify-center text-center px-4" style="background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('https://picsum.photos/seed/bannerbg/1200/500') center/cover;">
                 <div>
                     <h2 class="luxury-font text-2xl tracking-[3px] text-white font-light mb-4">THE ETERNAL LUMINA COLLECTION</h2>
                     <button class="border border-neutral-400 text-white text-[10px] tracking-[2px] px-6 py-2 hover:bg-white hover:text-black transition">DISCOVER NOW</button>
@@ -60,7 +61,7 @@
         </main>
 
         <!-- ADMIN PANEL VIEW -->
-        <main id="admin-view" class="hidden max-w-xl mx-auto px-4 py-12">
+        <main id="admin-view" class="hidden max-w-xl mx-auto px-4 py-12 w-full">
             <div class="space-y-8">
                 <!-- Header Box -->
                 <div class="bg-[#1B1B1B] border border-neutral-800 p-6 rounded-lg shadow-xl flex justify-between items-center">
@@ -140,20 +141,18 @@
             await fetchProducts();
         }
 
-        // Fetch Banner
         async function fetchBanner() {
             try {
-                let { data, error } = await _supabase.from('settings').select('*').eq('key', 'banner_url').single();
+                let { data, error } = await _supabase.from('settings').select('*').eq('key', 'banner_url').maybeSingle();
                 if (data && data.value) {
                     const bannerDiv = document.getElementById('hero-banner');
                     bannerDiv.style.background = `linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('${data.value}') center/cover`;
                 }
             } catch (err) {
-                console.log('Using default banner');
+                console.log('Banner load skipped.');
             }
         }
 
-        // Upload Banner File to Supabase Storage
         async function uploadBanner(e) {
             e.preventDefault();
             const fileInput = document.getElementById('banner-file-input');
@@ -167,14 +166,12 @@
 
             try {
                 const fileName = 'banner_' + Date.now() + '_' + file.name;
-                const { data, error } = await _supabase.storage.from('jewellery-images').upload(fileName, file);
-                if (error) throw error;
+                const { error: uploadError } = await _supabase.storage.from('jewellery-images').upload(fileName, file);
+                if (uploadError) throw uploadError;
 
-                // Get Public URL
                 const { data: publicUrlData } = _supabase.storage.from('jewellery-images').getPublicUrl(fileName);
                 const publicUrl = publicUrlData.publicUrl;
 
-                // Save to settings table
                 await _supabase.from('settings').upsert([{ key: 'banner_url', value: publicUrl }], { onConflict: 'key' });
 
                 alert('Banner uploaded successfully!');
@@ -188,7 +185,6 @@
             }
         }
 
-        // Fetch Products
         async function fetchProducts() {
             const grid = document.getElementById('products-grid');
             const spinner = document.getElementById('loading-spinner');
@@ -209,7 +205,7 @@
                 products.forEach(p => {
                     const imageUrl = p.image ? p.image : 'https://picsum.photos/seed/jewel/500/500';
                     const card = `
-                        <div class="bg-[#1B1B1B] border border-neutral-800 rounded-lg overflow-hidden flex flex-col justify-between">
+                        <div class="bg-[#1B1B1B] border border-neutral-800 rounded-lg overflow-hidden flex flex-col justify-between shadow-md">
                             <img src="${imageUrl}" alt="${p.name}" class="w-full h-48 object-cover">
                             <div class="p-3 text-center flex flex-col justify-between flex-grow">
                                 <div>
@@ -230,10 +226,9 @@
             }
         }
 
-        // Upload Product Image and Add to Database
         async function addProduct(e) {
             e.preventDefault();
-            const name = document.getElementById('prod-name').value;
+            const name = document.getElementById('prod-name-input') ? document.getElementById('prod-name-input').value : document.getElementById('prod-name').value;
             const price = document.getElementById('prod-price').value;
             const fileInput = document.getElementById('prod-file-input');
             const file = fileInput.files[0];
@@ -246,15 +241,14 @@
 
             try {
                 const fileName = 'prod_' + Date.now() + '_' + file.name;
-                const { data, error } = await _supabase.storage.from('jewellery-images').upload(fileName, file);
-                if (error) throw error;
+                const { error: uploadError } = await _supabase.storage.from('jewellery-images').upload(fileName, file);
+                if (uploadError) throw uploadError;
 
                 const { data: publicUrlData } = _supabase.storage.from('jewellery-images').getPublicUrl(fileName);
                 const publicUrl = publicUrlData.publicUrl;
 
-                // Save product info in database
                 const { error: dbError } = await _supabase.from('products').insert([
-                    { name: name, price: price, image: publicUrl }
+                    { name: document.getElementById('prod-name').value, price: price, image: publicUrl }
                 ]);
 
                 if (dbError) throw dbError;
@@ -271,7 +265,7 @@
         }
 
         function orderWhatsApp(name, price) {
-            const phone = '923001234567'; // Apna WhatsApp number yahan dalein
+            const phone = '923001234567';
             const msg = `Assalam-o-Alaikum, Main yeh jewellery order karna chahta hoon:\n\n*Product:* ${name}\n*Price:* ${price}\n\nKindly details share karein.`;
             window.open(`https://wa.me/${phone}?text=${encodeURIComponent(msg)}`, '_blank');
         }
