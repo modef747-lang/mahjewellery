@@ -20,10 +20,11 @@
         <!-- Navbar -->
         <header class="bg-[#111111] border-b border-neutral-800 sticky top-0 z-50">
             <div class="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
-                <h1 class="luxury-font text-xl tracking-[6px] text-white cursor-pointer" onclick="switchView('shop')">A E T H E L</h1>
-                <div class="flex items-center space-x-4">
-                    <!-- CLEAR ADMIN BUTTON -->
-                    <button onclick="switchView('admin')" class="flex items-center space-x-1 text-xs tracking-wider text-[#D4AF37] border border-[#D4AF37]/60 bg-[#1B1B1B] px-4 py-2 rounded-md hover:bg-[#D4AF37]/20 transition shadow-lg">
+                <h1 class="luxury-font text-lg md:text-xl tracking-[4px] md:tracking-[6px] text-white cursor-pointer" onclick="switchView('shop')">A E T H E L</h1>
+                
+                <!-- ADMIN BUTTON FIXED VISIBILITY -->
+                <div class="flex items-center space-x-2">
+                    <button onclick="switchView('admin')" class="flex items-center space-x-1 text-[11px] md:text-xs font-bold tracking-wider text-black bg-[#D4AF37] px-3 py-1.5 rounded hover:bg-[#c29d31] transition shadow-md">
                         <span>👑 ADMIN PANEL</span>
                     </button>
                 </div>
@@ -198,7 +199,7 @@
                 if (error) throw error;
 
                 if (!products || products.length === 0) {
-                    grid.innerHTML = '<p class="col-span-full text-center text-neutral-500 text-xs">No products found. Click ADMIN PANEL to add some!</p>';
+                    grid.innerHTML = '<p class="col-span-full text-center text-neutral-500 text-xs">No products found. Click ADMIN PANEL above to add some!</p>';
                     return;
                 }
 
@@ -228,7 +229,7 @@
 
         async function addProduct(e) {
             e.preventDefault();
-            const name = document.getElementById('prod-name-input') ? document.getElementById('prod-name-input').value : document.getElementById('prod-name').value;
+            const name = document.getElementById('prod-name').value;
             const price = document.getElementById('prod-price').value;
             const fileInput = document.getElementById('prod-file-input');
             const file = fileInput.files[0];
@@ -248,7 +249,7 @@
                 const publicUrl = publicUrlData.publicUrl;
 
                 const { error: dbError } = await _supabase.from('products').insert([
-                    { name: document.getElementById('prod-name').value, price: price, image: publicUrl }
+                    { name: name, price: price, image: publicUrl }
                 ]);
 
                 if (dbError) throw dbError;
