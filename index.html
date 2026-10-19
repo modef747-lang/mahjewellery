@@ -43,9 +43,9 @@
         <!-- MAIN SHOP VIEW -->
         <main id="shop-view" class="block">
             <!-- Hero Banner -->
-            <div id="hero-banner" class="relative w-full h-[280px] bg-neutral-900 flex items-center justify-center text-center px-4" style="background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('https://picsum.photos/seed/bannerbg/1200/500') center/cover;">
+            <div id="hero-banner" class="relative w-full h-[320px] bg-neutral-900 flex items-center justify-center text-center px-4" style="background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('https://picsum.photos/seed/bannerbg/1200/500') center/cover;">
                 <div>
-                    <h2 class="luxury-font text-2xl tracking-[3px] text-white font-light mb-4">THE ETERNAL LUMINA COLLECTION</h2>
+                    <h2 class="luxury-font text-2xl md:text-3xl tracking-[3px] text-white font-light mb-4 drop-shadow-md">THE ETERNAL LUMINA COLLECTION</h2>
                     <button class="border border-neutral-400 text-white text-[10px] tracking-[2px] px-6 py-2 hover:bg-white hover:text-black transition">DISCOVER NOW</button>
                 </div>
             </div>
@@ -126,7 +126,6 @@
         const SUPABASE_ANON_KEY = 'sb_publishable_CgXlu8jziGVz_OcPT_SiHg_Bx2re8dp';
         const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-        // View Switcher (Shop se Admin aur Admin se Shop jaane ke liye)
         function switchView(view) {
             if(view === 'shop') {
                 document.getElementById('shop-view').classList.remove('hidden');
@@ -143,7 +142,7 @@
             await fetchProducts();
         }
 
-        // Banner fetch karna database se
+        // Improved Banner Fetching & Rendering
         async function fetchBanner() {
             try {
                 let { data, error } = await _supabase.from('settings').select('*').eq('key', 'banner_url').maybeSingle();
@@ -152,11 +151,10 @@
                     bannerDiv.style.background = `linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('${data.value}') center/cover`;
                 }
             } catch (err) {
-                console.log('Banner load skipped.');
+                console.log('Banner fetch error:', err);
             }
         }
 
-        // Laptop se Banner upload karna storage mein
         async function uploadBanner(e) {
             e.preventDefault();
             const fileInput = document.getElementById('banner-file-input');
@@ -176,9 +174,11 @@
                 const { data: publicUrlData } = _supabase.storage.from('jewellery-images').getPublicUrl(fileName);
                 const publicUrl = publicUrlData.publicUrl;
 
-                await _supabase.from('settings').upsert([{ key: 'banner_url', value: publicUrl }], { onConflict: 'key' });
+                // Save into settings table
+                const { error: dbError } = await _supabase.from('settings').upsert([{ key: 'banner_url', value: publicUrl }], { onConflict: 'key' });
+                if (dbError) throw dbError;
 
-                alert('Banner uploaded successfully!');
+                alert('Banner uploaded & updated successfully!');
                 document.getElementById('upload-banner-form').reset();
                 switchView('shop');
             } catch (err) {
@@ -189,7 +189,6 @@
             }
         }
 
-        // Products fetch karna database se
         async function fetchProducts() {
             const grid = document.getElementById('products-grid');
             const spinner = document.getElementById('loading-spinner');
@@ -231,7 +230,6 @@
             }
         }
 
-        // Naya Product Laptop se upload karna
         async function addProduct(e) {
             e.preventDefault();
             const name = document.getElementById('prod-name').value;
@@ -270,14 +268,12 @@
             }
         }
 
-        // WhatsApp direct ordering function
         function orderWhatsApp(name, price) {
-            const phone = '923001234567'; // Yahan apna WhatsApp number likh sakte hain
+            const phone = '923001234567';
             const msg = `Assalam-o-Alaikum, Main yeh jewellery order karna chahta hoon:\n\n*Product:* ${name}\n*Price:* ${price}\n\nKindly details share karein.`;
             window.open(`https://wa.me/${phone}?text=${encodeURIComponent(msg)}`, '_blank');
         }
 
-        // Page khulte hi data load hoga
         window.onload = loadWebsiteData;
     </script>
 </body>
